@@ -11,6 +11,13 @@ view: fastly_logs {
     sql: ${TABLE}.client_as_name ;;
   }
 
+# Added by Bruce Sandell - Looker
+# Number of distinct client names
+  measure: total_distinct_client_names {
+    type: count_distinct
+    sql: ${client_as_name} ;;
+  }
+
   dimension: client_as_number {
     type: string
     sql: ${TABLE}.client_as_number ;;
@@ -28,7 +35,7 @@ view: fastly_logs {
 
 # Added by Bruce Sandell - Looker
 # Number of distinct client IP addreses
-  measure: distinct_clinet_ip {
+  measure: distinct_client_ips {
     type:  count_distinct
     sql: ${client_ip} ;;
   }
@@ -36,6 +43,13 @@ view: fastly_logs {
   dimension: content_type {
     type: string
     sql: ${TABLE}.content_type ;;
+  }
+
+# Added by Bruce Sandell - Looker
+# Indicator for failed equests
+  dimension: is_failed_request {
+    type:  yesno
+    sql: ${status} != '200' ;;
   }
 
   dimension: geo_city {
@@ -120,6 +134,12 @@ view: fastly_logs {
   dimension: req_size {
     type: number
     sql: ${req_header_size} + ${req_body_size} ;;
+  }
+
+  measure: average_request_size {
+    type: average
+    sql:  ${req_size} ;;
+    value_format_name: decimal_0
   }
 
   dimension: request {
@@ -349,7 +369,7 @@ view: fastly_logs {
     type: time
     sql: PARSE_TIMESTAMP('%FT%TGMT',  ${time_end}) ;;
     datatype: timestamp
-    timeframes: [raw, time, date, week, month]
+    timeframes: [raw, time, date, week, month, hour_of_day]
   }
 
   dimension: time_start {
@@ -363,7 +383,7 @@ view: fastly_logs {
     type: time
     sql: PARSE_TIMESTAMP('%FT%TGMT',  ${time_start}) ;;
     datatype: timestamp
-    timeframes: [raw, time, date, week, month]
+    timeframes: [raw, time, date, week, month, hour_of_day]
   }
 
   dimension: tls_client_cipher {
