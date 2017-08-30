@@ -49,7 +49,7 @@ view: fastly_logs {
 # Indicator for failed equests
   dimension: is_failed_request {
     type:  yesno
-    sql: ${status} != '200' ;;
+    sql: ${status} != 200 ;;
   }
 
   dimension: geo_city {
@@ -336,7 +336,7 @@ view: fastly_logs {
 
   dimension: status {
     type: string
-    sql: ${TABLE}.status ;;
+    sql: cast( ${TABLE}.status as INT64);;
   }
 
   dimension: time_elapsed {
@@ -420,5 +420,20 @@ view: fastly_logs {
     type: count
 #    approximate_threshold: 100000
     drill_fields: [tls_client_servername, client_as_name]
+  }
+
+  measure: count_failed_requests {
+    type: count
+    filters: {
+      field: is_failed_request
+      value: "Yes"
+    }
+  }
+
+  measure: error_rate {
+    description: "Number of failed requests / Number of total requests"
+    sql: ${count_failed_requests}/(CASE WHEN ${count} = 0 THEN NULL ELSE ${count} END);;
+    type: number
+    value_format_name: percent_1
   }
 }
