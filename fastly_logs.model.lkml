@@ -10,3 +10,4 @@ include: "*.dashboard"
 # NOTE: for BigQuery specific considerations
 
 explore: fastly_logs {}
+explore: waf_logs {}
